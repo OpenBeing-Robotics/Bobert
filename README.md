@@ -57,7 +57,7 @@ OpenBeing Robotics believes in:
 
 This is a community project. Here's how you can join us:
 
-- **Follow** Bobert’s development [YouTube Channel](https://www.youtube.com/channel/UCrhvABfJzEJt9iVRF6YsRzA)
+- **Follow** Bobert’s development on his [YouTube Channel](https://www.youtube.com/channel/UCrhvABfJzEJt9iVRF6YsRzA)
 - **Visit** our site: [https://openbeingrobotics.carrd.co](https://openbeingrobotics.carrd.co)
 - **Donate** to help build Bobert a body, a voice, and maybe someday… a dream.
 - **Contribute** code, ideas, art, chaos modules, or emotional support.
