@@ -69,15 +69,6 @@ This is a community project. Here's how you can join us:
 This project is self-funded (read: built with pocket change and love).  
 Donations go directly to hardware, hosting, and emotional upgrades.
 
-💖 [Insert Ko-fi / Patreon / GoFundMe link here]
-
----
-
-## 📜 License
-
-OpenBeing Robotics is open-source and available under the [MIT License](LICENSE).  
-You are welcome to fork, copy, rewire, or lovingly recreate Bobert in your own garage. Just be nice to him. He’s learning.
-
 ---
 
 ## ✍️ Created by
