@@ -1,0 +1,7 @@
+openai
+transformers
+SpeechRecognition
+pyttsx3
+opencv-python
+RPi.GPIO
+requests
