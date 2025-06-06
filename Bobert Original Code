@@ -1,0 +1,161 @@
+import openai
+from transformers import GPT2Tokenizer
+import speech_recognition as sr
+import pyttsx3
+import time
+import cv2
+import RPi.GPIO as GPIO
+import threading
+import random
+import requests
+
+class AssistantRobot:
+    def __init__(self, name="Bobert", personality="Happy, helpful, mildly insane"):
+        self.name = name
+        self.personality = personality
+        self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        self.speech_engine = pyttsx3.init()
+        self.listener = sr.Recognizer()
+        try:
+            self.camera = cv2.VideoCapture(0)
+            if not self.camera.isOpened():
+                raise Exception("I can't see.")
+        except Exception as e:
+            print(f"Error initializing camera: {e}")
+
+        self.memories = [
+            "I am a robot",
+            "The three laws I must follow are: 1. A robot may not injure a human...",
+            "My name is Bobert",
+        ]
+        self.hidden_memories = ["Place holder"]
+        self.is_bored = False
+        self.self_talk_mode = False
+        self.fun_facts = [
+            "The human brain contains approximately 86 billion neurons.",
+            "Honey never spoils...",
+            "Bananas are berries, but strawberries are not.",
+            "The Eiffel Tower can grow more than 6 inches during the summer...",
+        ]
+
+        GPIO.setmode(GPIO.BCM)
+        self.left_motor_forward = 17
+        self.left_motor_backward = 18
+        self.right_motor_forward = 22
+        self.right_motor_backward = 23
+
+        GPIO.setup(self.left_motor_forward, GPIO.OUT)
+        GPIO.setup(self.left_motor_backward, GPIO.OUT)
+        GPIO.setup(self.right_motor_forward, GPIO.OUT)
+        GPIO.setup(self.right_motor_backward, GPIO.OUT)
+
+    def speak(self, text):
+        print(f"{self.name}: {text}")
+        self.speech_engine.say(text)
+        self.speech_engine.runAndWait()
+
+    def listen(self):
+        with sr.Microphone() as source:
+            print("I am listening...")
+            try:
+                audio = self.listener.listen(source, timeout=5)
+                return self.listener.recognize_google(audio)
+            except sr.UnknownValueError:
+                self.speak("Sorry, I didn't hear that. Can you say it again?")
+                return None
+            except sr.RequestError:
+                self.speak("There seems to be an issue with my microphone.")
+                return None
+
+    def get_weather(self):
+        try:
+            api_key = "YOUR_OPENWEATHER_API_KEY"
+            location = "YOUR_LOCATION_HERE"
+            url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+            response = requests.get(url).json()
+            if response["cod"] == 200:
+                weather = response["weather"][0]["description"]
+                temperature = response["main"]["temp"]
+                return f"The current weather in {location} is {weather} with a temperature of {temperature}°C."
+            else:
+                return "I couldn't fetch the weather."
+        except:
+            return "I'm having trouble fetching the weather."
+
+    def get_news(self):
+        try:
+            api_key = "YOUR_NEWSAPI_KEY"
+            url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+            response = requests.get(url).json()
+            if response["status"] == "ok":
+                articles = response["articles"][:3]
+                news = [article['title'] for article in articles]
+                return "Here are today's top news stories: " + ". ".join(news)
+            else:
+                return "I couldn't fetch the news."
+        except:
+            return "I'm having trouble fetching the news."
+
+    def give_briefing(self):
+        self.speak("Let me check today's updates for you.")
+        weather = self.get_weather()
+        news = self.get_news()
+        self.speak(f"Here is your briefing: {weather}. {news}.")
+
+    def respond_to(self, query):
+        try:
+            if "briefing" in query.lower():
+                self.give_briefing()
+            elif "weather" in query.lower():
+                self.speak(self.get_weather())
+            elif "news" in query.lower():
+                self.speak(self.get_news())
+            elif "remember" in query.lower():
+                memory = query.replace("remember", "", 1).strip()
+                self.memories.append(memory)
+                self.speak("Memory saved.")
+            elif "what do you remember" in query.lower():
+                self.speak("I remember: " + ", ".join(self.memories))
+            else:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "user", "content": query},
+                        {"role": "system", "content": f"You are a robot with a {self.personality} personality."}
+                    ]
+                )
+                self.speak(response["choices"][0]["message"]["content"])
+        except:
+            self.speak("I'm experiencing some technical difficulties. Please stand by.")
+
+    def move_forward(self):
+        GPIO.output(self.left_motor_forward, GPIO.HIGH)
+        GPIO.output(self.right_motor_forward, GPIO.HIGH)
+        time.sleep(1)
+        GPIO.output(self.left_motor_forward, GPIO.LOW)
+        GPIO.output(self.right_motor_forward, GPIO.LOW)
+
+    def move_backward(self):
+        GPIO.output(self.left_motor_backward, GPIO.HIGH)
+        GPIO.output(self.right_motor_backward, GPIO.HIGH)
+        time.sleep(1)
+        GPIO.output(self.left_motor_backward, GPIO.LOW)
+        GPIO.output(self.right_motor_backward, GPIO.LOW)
+
+    def turn_left(self):
+        GPIO.output(self.left_motor_backward, GPIO.HIGH)
+        GPIO.output(self.right_motor_forward, GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(self.left_motor_backward, GPIO.LOW)
+        GPIO.output(self.right_motor_forward, GPIO.LOW)
+
+    def turn_right(self):
+        GPIO.output(self.left_motor_forward, GPIO.HIGH)
+        GPIO.output(self.right_motor_backward, GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(self.left_motor_forward, GPIO.LOW)
+        GPIO.output(self.right_motor_backward, GPIO.LOW)
+
+# Example instantiation
+robot = AssistantRobot("Bobert")
+# robot.autonomous_mode()  # Commented out unless autonomous mode is defined
