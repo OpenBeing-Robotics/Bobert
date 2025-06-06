@@ -61,9 +61,11 @@ This is a community project. Here's how you can join us:
 - **Visit** our site: [https://openbeingrobotics.carrd.co](https://openbeingrobotics.carrd.co)
 - **Donate** to help build Bobert a body, a voice, and maybe someday… a dream.
 - **Contribute** code, ideas, art, chaos modules, or emotional support.
-- **Clone the repo:** git clone https://github.com/OpenBeing-Robotics/Bobert.git **then:** cd Bobert
-- **Install dependencies:** pip install -r requirements.txt
-- **Run the bot:** python bobert_brain.py
+- **Clone the repo:** `git clone https://github.com/OpenBeing-Robotics/Bobert.git` **then:** `cd Bobert`
+- **Install dependencies:** `pip install -r requirements.txt`
+- **Fill** in all the blanks we have left in the code, you may need to buy GPT credits or API's.
+- **Run the bot:** `python bobert_brain.py`
+- **Note!** you must run this on a raspberry pi 4! We will not count it as a bug if it fails on other devices.
 
 
 ---
