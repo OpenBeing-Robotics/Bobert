@@ -17,5 +17,9 @@ Parts needed:
 
 Assembly is mostly intuitive, however there are a few things:
 --GPIO Pins: Pin 17 = left front motor; Pin 18 = left back motor; Pin 22 = right front motor; Pin 23 = right back motor.
---Tips: I have found that using a USB splitter is the best way to connect all the needed attachments. I also cannot stress this enough, ALWAYS back up your code to a separate device, even minor bug fixes, SAVE IT ALL. Thirdly Bobert may glitch or have errors, some of these are universal and in that case please post the glitch to the wiki, but some of these glitches are native to different devices and show up sometimes but other times are fine always test the glitch on a separate device if available.
+--Tips: I have found that using a USB splitter is the best way to connect all the needed attachments.
+I also cannot stress this enough, ALWAYS back up your code to a separate device, even minor bug fixes, SAVE IT ALL. 
+Thirdly Bobert may glitch or have errors, some of these are universal and in that case please post the glitch to 
+the wiki, but some of these glitches are native to different devices and show up sometimes but other times are fine 
+always test the glitch on a separate device if available.
 --Problems or Needs: Please email me at openbeingemail@gmail.com or post your problem to the wiki.
