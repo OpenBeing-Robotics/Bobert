@@ -4,15 +4,15 @@ Parts needed:
 |----------------------------------------------------------------------------------------------|
 | Item                                 |    Qty    |  Est. Cost  |        Notes                |
 | ------------------------------------ | --------- | ----------- | --------------------------- |
-| Raspberry Pi 4                       | 1         | $80      | Brain (Bobert Prime)           |
-| Micro SD Card (32GB+)                | 1         | $10      | OS and logs                    |
-| USB Camera                           | 1         | $8       | Visionbert                     |
-| USB Microphone                       | 1         | $10      | Audiobert                      |
-| DC Motors                            | 4         | $20      | Drivebert                      |
-| L298N Motor Driver                   | 1         | $6       | Motor control                  |
-| Wires, jumpers, breadboards          |   Many    | ~$10     | For everything                 |
-| Power pack (USB-C)                   | 1         | $15      | Juice                          |
-| Speakers                             | 1         | $10      | Bobert's voice!                |
+| Raspberry Pi 4                       | 1         | $80         | Brain (Bobert Prime)        |
+| Micro SD Card (32GB+)                | 1         | $10         | OS and logs                 |
+| USB Camera                           | 1         | $8          | Visionbert                  |
+| USB Microphone                       | 1         | $10         | Audiobert                   |
+| DC Motors                            | 4         | $20         | Drivebert                   |
+| L298N Motor Driver                   | 1         | $6          | Motor control               |
+| Wires, jumpers, breadboards          | Many      | ~$10        | For everything              |
+| Power pack (USB-C)                   | 1         | $15         | Juice                       |
+| Speakers                             | 1         | $10         | Bobert's voice!             |
 |----------------------------------------------------------------------------------------------|
 
 Assembly is mostly intuitive, however there are a few things:
