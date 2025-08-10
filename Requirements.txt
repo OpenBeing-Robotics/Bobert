@@ -1,7 +1,29 @@
-openai
-transformers
-SpeechRecognition
-pyttsx3
-opencv-python
-RPi.GPIO
-requests
+# Core AI and ML libraries
+openai>=1.0.0
+transformers>=4.30.0
+torch>=2.0.0
+
+# Audio processing
+SpeechRecognition>=3.10.0
+pyttsx3>=2.90
+sounddevice>=0.4.6
+scipy>=1.10.0
+
+# Computer vision
+opencv-python>=4.8.0
+
+# Raspberry Pi specific
+RPi.GPIO>=0.7.1
+
+# HTTP requests and data handling
+requests>=2.31.0
+
+# Additional dependencies for Bobert Prime
+numpy>=1.24.0
+pyserial>=3.5
+
+# Optional: For better audio quality
+# pyaudio>=0.2.11
+
+# Optional: For advanced speech recognition
+# pocketsphinx>=0.1.15
