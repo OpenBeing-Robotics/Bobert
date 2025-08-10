@@ -8,6 +8,9 @@ import RPi.GPIO as GPIO
 import threading
 import random
 import requests
+import os
+import signal
+import sys
 
 class AssistantRobot:
     def __init__(self, name="Bobert", personality="Happy, helpful, mildly insane"):
@@ -16,12 +19,17 @@ class AssistantRobot:
         self.tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
         self.speech_engine = pyttsx3.init()
         self.listener = sr.Recognizer()
+        
+        # Initialize camera with error handling
+        self.camera = None
         try:
             self.camera = cv2.VideoCapture(0)
             if not self.camera.isOpened():
-                raise Exception("I can't see.")
+                print("Warning: Camera not available")
+                self.camera = None
         except Exception as e:
             print(f"Error initializing camera: {e}")
+            self.camera = None
 
         self.memories = [
             "I am a robot",
@@ -38,63 +46,115 @@ class AssistantRobot:
             "The Eiffel Tower can grow more than 6 inches during the summer...",
         ]
 
-        GPIO.setmode(GPIO.BCM)
-        self.left_motor_forward = 17
-        self.left_motor_backward = 18
-        self.right_motor_forward = 22
-        self.right_motor_backward = 23
+        # Initialize GPIO with error handling
+        self.gpio_available = False
+        try:
+            GPIO.setmode(GPIO.BCM)
+            self.left_motor_forward = 17
+            self.left_motor_backward = 18
+            self.right_motor_forward = 22
+            self.right_motor_backward = 23
 
-        GPIO.setup(self.left_motor_forward, GPIO.OUT)
-        GPIO.setup(self.left_motor_backward, GPIO.OUT)
-        GPIO.setup(self.right_motor_forward, GPIO.OUT)
-        GPIO.setup(self.right_motor_backward, GPIO.OUT)
+            GPIO.setup(self.left_motor_forward, GPIO.OUT)
+            GPIO.setup(self.left_motor_backward, GPIO.OUT)
+            GPIO.setup(self.right_motor_forward, GPIO.OUT)
+            GPIO.setup(self.right_motor_backward, GPIO.OUT)
+            
+            # Test GPIO pins
+            GPIO.output(self.left_motor_forward, GPIO.LOW)
+            GPIO.output(self.left_motor_backward, GPIO.LOW)
+            GPIO.output(self.right_motor_forward, GPIO.LOW)
+            GPIO.output(self.right_motor_backward, GPIO.LOW)
+            
+            self.gpio_available = True
+        except Exception as e:
+            print(f"GPIO not available: {e}")
+            self.gpio_available = False
+
+    def __del__(self):
+        self.cleanup()
+
+    def cleanup(self):
+        """Clean up resources"""
+        if self.camera and self.camera.isOpened():
+            self.camera.release()
+        cv2.destroyAllWindows()
+        if self.gpio_available:
+            GPIO.cleanup()
 
     def speak(self, text):
-        print(f"{self.name}: {text}")
-        self.speech_engine.say(text)
-        self.speech_engine.runAndWait()
+        try:
+            print(f"{self.name}: {text}")
+            self.speech_engine.say(text)
+            self.speech_engine.runAndWait()
+        except Exception as e:
+            print(f"Speech error: {e}")
 
     def listen(self):
-        with sr.Microphone() as source:
-            print("I am listening...")
-            try:
-                audio = self.listener.listen(source, timeout=5)
-                return self.listener.recognize_google(audio)
-            except sr.UnknownValueError:
-                self.speak("Sorry, I didn't hear that. Can you say it again?")
-                return None
-            except sr.RequestError:
-                self.speak("There seems to be an issue with my microphone.")
-                return None
+        try:
+            with sr.Microphone() as source:
+                print("I am listening...")
+                try:
+                    audio = self.listener.listen(source, timeout=5)
+                    return self.listener.recognize_google(audio)
+                except sr.UnknownValueError:
+                    self.speak("Sorry, I didn't hear that. Can you say it again?")
+                    return None
+                except sr.RequestError:
+                    self.speak("There seems to be an issue with my microphone.")
+                    return None
+        except Exception as e:
+            print(f"Listening error: {e}")
+            return None
 
     def get_weather(self):
         try:
-            api_key = "YOUR_OPENWEATHER_API_KEY"
-            location = "YOUR_LOCATION_HERE"
+            # Use environment variables for API keys
+            api_key = os.getenv("OPENWEATHER_API_KEY", "YOUR_OPENWEATHER_API_KEY")
+            location = os.getenv("WEATHER_LOCATION", "YOUR_LOCATION_HERE")
+            
+            if api_key == "YOUR_OPENWEATHER_API_KEY":
+                return "Weather API key not configured. Please set OPENWEATHER_API_KEY environment variable."
+            
             url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
-            response = requests.get(url).json()
-            if response["cod"] == 200:
-                weather = response["weather"][0]["description"]
-                temperature = response["main"]["temp"]
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            if data.get("cod") == 200:
+                weather = data["weather"][0]["description"]
+                temperature = data["main"]["temp"]
                 return f"The current weather in {location} is {weather} with a temperature of {temperature}°C."
             else:
                 return "I couldn't fetch the weather."
-        except:
-            return "I'm having trouble fetching the weather."
+        except requests.exceptions.RequestException as e:
+            return f"I'm having trouble fetching the weather: {e}"
+        except Exception as e:
+            return f"Weather error: {e}"
 
     def get_news(self):
         try:
-            api_key = "YOUR_NEWSAPI_KEY"
+            # Use environment variables for API keys
+            api_key = os.getenv("NEWSAPI_KEY", "YOUR_NEWSAPI_KEY")
+            
+            if api_key == "YOUR_NEWSAPI_KEY":
+                return "News API key not configured. Please set NEWSAPI_KEY environment variable."
+            
             url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
-            response = requests.get(url).json()
-            if response["status"] == "ok":
-                articles = response["articles"][:3]
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            if data.get("status") == "ok":
+                articles = data["articles"][:3]
                 news = [article['title'] for article in articles]
                 return "Here are today's top news stories: " + ". ".join(news)
             else:
                 return "I couldn't fetch the news."
-        except:
-            return "I'm having trouble fetching the news."
+        except requests.exceptions.RequestException as e:
+            return f"I'm having trouble fetching the news: {e}"
+        except Exception as e:
+            return f"News error: {e}"
 
     def give_briefing(self):
         self.speak("Let me check today's updates for you.")
@@ -117,45 +177,87 @@ class AssistantRobot:
             elif "what do you remember" in query.lower():
                 self.speak("I remember: " + ", ".join(self.memories))
             else:
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "user", "content": query},
-                        {"role": "system", "content": f"You are a robot with a {self.personality} personality."}
-                    ]
-                )
-                self.speak(response["choices"][0]["message"]["content"])
-        except:
+                # Use new OpenAI client syntax
+                try:
+                    client = openai.OpenAI()
+                    response = client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[
+                            {"role": "system", "content": f"You are a robot with a {self.personality} personality."},
+                            {"role": "user", "content": query}
+                        ]
+                    )
+                    self.speak(response.choices[0].message.content)
+                except Exception as e:
+                    print(f"OpenAI API error: {e}")
+                    self.speak("I'm experiencing some technical difficulties with my AI brain. Please stand by.")
+        except Exception as e:
+            print(f"Response error: {e}")
             self.speak("I'm experiencing some technical difficulties. Please stand by.")
 
     def move_forward(self):
-        GPIO.output(self.left_motor_forward, GPIO.HIGH)
-        GPIO.output(self.right_motor_forward, GPIO.HIGH)
-        time.sleep(1)
-        GPIO.output(self.left_motor_forward, GPIO.LOW)
-        GPIO.output(self.right_motor_forward, GPIO.LOW)
+        if not self.gpio_available:
+            print("GPIO not available, cannot move")
+            return
+        try:
+            GPIO.output(self.left_motor_forward, GPIO.HIGH)
+            GPIO.output(self.right_motor_forward, GPIO.HIGH)
+            time.sleep(1)
+            GPIO.output(self.left_motor_forward, GPIO.LOW)
+            GPIO.output(self.right_motor_forward, GPIO.LOW)
+        except Exception as e:
+            print(f"Movement error: {e}")
 
     def move_backward(self):
-        GPIO.output(self.left_motor_backward, GPIO.HIGH)
-        GPIO.output(self.right_motor_backward, GPIO.HIGH)
-        time.sleep(1)
-        GPIO.output(self.left_motor_backward, GPIO.LOW)
-        GPIO.output(self.right_motor_backward, GPIO.LOW)
+        if not self.gpio_available:
+            print("GPIO not available, cannot move")
+            return
+        try:
+            GPIO.output(self.left_motor_backward, GPIO.HIGH)
+            GPIO.output(self.right_motor_backward, GPIO.HIGH)
+            time.sleep(1)
+            GPIO.output(self.left_motor_backward, GPIO.LOW)
+            GPIO.output(self.right_motor_backward, GPIO.LOW)
+        except Exception as e:
+            print(f"Movement error: {e}")
 
     def turn_left(self):
-        GPIO.output(self.left_motor_backward, GPIO.HIGH)
-        GPIO.output(self.right_motor_forward, GPIO.HIGH)
-        time.sleep(0.5)
-        GPIO.output(self.left_motor_backward, GPIO.LOW)
-        GPIO.output(self.right_motor_forward, GPIO.LOW)
+        if not self.gpio_available:
+            print("GPIO not available, cannot move")
+            return
+        try:
+            GPIO.output(self.left_motor_backward, GPIO.HIGH)
+            GPIO.output(self.right_motor_forward, GPIO.HIGH)
+            time.sleep(0.5)
+            GPIO.output(self.left_motor_backward, GPIO.LOW)
+            GPIO.output(self.right_motor_forward, GPIO.LOW)
+        except Exception as e:
+            print(f"Movement error: {e}")
 
     def turn_right(self):
-        GPIO.output(self.left_motor_forward, GPIO.HIGH)
-        GPIO.output(self.right_motor_backward, GPIO.HIGH)
-        time.sleep(0.5)
-        GPIO.output(self.left_motor_forward, GPIO.LOW)
-        GPIO.output(self.right_motor_backward, GPIO.LOW)
+        if not self.gpio_available:
+            print("GPIO not available, cannot move")
+            return
+        try:
+            GPIO.output(self.left_motor_forward, GPIO.HIGH)
+            GPIO.output(self.right_motor_backward, GPIO.HIGH)
+            time.sleep(0.5)
+            GPIO.output(self.left_motor_forward, GPIO.LOW)
+            GPIO.output(self.right_motor_backward, GPIO.LOW)
+        except Exception as e:
+            print(f"Movement error: {e}")
+
+def signal_handler(sig, frame):
+    """Handle shutdown gracefully"""
+    print('\nShutting down Bobert...')
+    if 'robot' in globals():
+        robot.cleanup()
+    sys.exit(0)
+
+# Set up signal handler for graceful shutdown
+signal.signal(signal.SIGINT, signal_handler)
 
 # Example instantiation
 robot = AssistantRobot("Bobert")
+
 # robot.autonomous_mode()  # Commented out unless autonomous mode is defined

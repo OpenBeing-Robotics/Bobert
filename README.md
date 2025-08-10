@@ -1,4 +1,4 @@
-# OpenBeing Robotics
+# OpenBeing Robotics - Bobert
 
 > *"What does it mean to be human? What does it mean to feel? We're building a robot to find out."*
 
@@ -18,7 +18,7 @@ Bobert is not just a machine. He's an experiment in consciousness, perception, a
 
 > **Birthday:** April 16, 2025  
 > **Mission Motto:** *Quid est homo?*  
-> *(“What is a human?”)*
+> *("What is a human?")*
 
 ---
 
@@ -53,21 +53,109 @@ OpenBeing Robotics believes in:
 
 ---
 
+## 🚀 Quick Start (Updated!)
+
+### **1. Easy Setup**
+```bash
+# Clone the repository
+git clone https://github.com/OpenBeing-Robotics/Bobert.git
+cd Bobert
+
+# Run the automated setup
+python setup.py
+```
+
+### **2. Configure API Keys**
+```bash
+# Edit the environment template
+nano .env.template
+
+# Rename to .env
+mv .env.template .env
+```
+
+### **3. Run Bobert**
+```bash
+# Start the main interface
+python run_bobert.py
+
+# Or run specific modules directly
+python "Bobert Sentient Files/bobert_prime.py"
+python "Bobert Sentient Files/drivebert.py"
+```
+
+---
+
 ## 🛠️ Get Involved
 
 This is a community project. Here's how you can join us:
 
-- **Follow** Bobert’s development on his [YouTube Channel](https://www.youtube.com/channel/UCrhvABfJzEJt9iVRF6YsRzA)
+- **Follow** Bobert's development on his [YouTube Channel](https://www.youtube.com/channel/UCrhvABfJzEJt9iVRF6YsRzA)
 - **Visit** our site: [https://openbeingrobotics.carrd.co](https://openbeingrobotics.carrd.co)
 - **Donate** to help build Bobert a body, a voice, and maybe someday… a dream.
 - **Contribute** code, ideas, art, chaos modules, or emotional support.
 - **Assemble:** [Assembly instructions](Bobert_Assembly)
 - **Clone the repo:** `git clone https://github.com/OpenBeing-Robotics/Bobert.git` **then:** `cd Bobert`
-- **Install dependencies:** `pip install -r requirements.txt`
+- **Install dependencies:** `pip install -r Requirements.txt`
 - **Fill** in all the blanks we have left in the code, you may need to buy GPT credits or API's.
-- **Run the bot:** `python bobert_brain.py`
+- **Run the bot:** `python run_bobert.py`
 - **Note!** you must run this on a Raspberry Pi 4! We will not count it as a bug if it fails on other devices.
 
+---
+
+## 🔧 Recent Bug Fixes & Improvements
+
+### **Critical Issues Fixed:**
+- ✅ **File Path Errors**: Replaced hardcoded paths with relative paths
+- ✅ **OpenAI API**: Updated deprecated API calls to new syntax
+- ✅ **GPIO Safety**: Added proper error handling and cleanup
+- ✅ **Camera Handling**: Improved resource management and fallback options
+- ✅ **Error Handling**: Comprehensive exception handling throughout
+- ✅ **Memory Leaks**: Fixed camera and GPIO resource cleanup
+- ✅ **Thread Safety**: Improved GPIO monitoring thread safety
+
+### **New Features:**
+- 🆕 **Configuration Management**: Centralized config.py for all settings
+- 🆕 **Setup Script**: Automated installation and configuration
+- 🆕 **Main Interface**: Easy-to-use module selection menu
+- 🆕 **Environment Variables**: Secure API key management
+- 🆕 **Cross-Platform Support**: Better non-Raspberry Pi compatibility
+- 🆕 **Logging System**: Improved error tracking and debugging
+
+---
+
+## 📋 Requirements
+
+### **Hardware:**
+- Raspberry Pi 4 (recommended)
+- Camera module
+- Microphone and speakers
+- GPIO components (motors, sensors)
+- Arduino Nano (for Drivebert)
+
+### **Software:**
+- Python 3.8+
+- See `Requirements.txt` for full dependency list
+
+### **API Keys (Optional but Recommended):**
+- OpenAI API key (for AI responses)
+- OpenWeather API key (for weather function)
+- News API key (for news function)
+
+---
+
+## 🚨 Troubleshooting
+
+### **Common Issues:**
+1. **"GPIO not available"**: Run on Raspberry Pi or check GPIO permissions
+2. **"Camera failed"**: Check camera connection and permissions
+3. **"API errors"**: Verify your API keys in `.env` file
+4. **"Import errors"**: Run `python setup.py` to install dependencies
+
+### **Getting Help:**
+- Check the logs in the `logs/` directory
+- Run `python config.py` to validate configuration
+- Ensure you're running on Raspberry Pi for full functionality
 
 ---
 
@@ -83,4 +171,10 @@ Donations go directly to hardware, hosting, and emotional upgrades.
 **Finn**  
 Founder of OpenBeing Robotics  
 openbeingemail@gmail.com  
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
